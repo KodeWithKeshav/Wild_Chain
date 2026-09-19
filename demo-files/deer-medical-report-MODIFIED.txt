@@ -1,0 +1,5 @@
+MEDICAL REPORT
+Patient: Spotted deer #1
+Diagnosis: healthy, no injury
+Treatment: splint, antibiotics
+Signed: City Veterinary Hospital
