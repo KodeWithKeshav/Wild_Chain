@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
-import { ArrowLeftRight, BadgeCheck, ClipboardPlus, LayoutDashboard, Menu, PawPrint, PlusCircle, Settings2, ShieldCheck, Sprout, Wallet, X } from "lucide-react";
+import { ArrowLeftRight, BadgeCheck, ClipboardPlus, LayoutDashboard, Menu, PawPrint, PlusCircle, Settings2, ShieldCheck, Sprout, Users, X } from "lucide-react";
 import { useWeb3 } from "../context/Web3Context";
-import { NETWORKS, ORG_TYPES } from "../lib/chain";
+import { ORG_TYPES } from "../lib/chain";
 import { shortAddr } from "../lib/format";
 import { Notice, ToastHost } from "./ui";
 import { evidenceStore } from "../lib/storage";
@@ -17,23 +17,43 @@ const links = [
   { to: "/admin", label: "Admin", icon: Settings2 },
 ];
 
-function WalletCard() {
+function AccountSwitcher() {
   const w = useWeb3();
-  const net = NETWORKS[w.activeChainId];
-  if (!w.hasWallet) return <div className="rounded-xl bg-white/10 p-3 text-xs text-forest-100">MetaMask not detected. Install it to sign transactions. You can still browse read-only.</div>;
-  if (!w.account)
-    return <button onClick={w.connect} disabled={w.connecting} className="btn w-full bg-sand-200 text-forest-900 hover:bg-sand-100"><Wallet className="h-4 w-4" />{w.connecting ? "Connecting…" : "Connect MetaMask"}</button>;
+
+  if (w.accounts.length === 0) {
+    return <div className="rounded-xl bg-white/10 p-3 text-xs text-forest-100">Connecting to Ganache…</div>;
+  }
+
   return (
     <div className="space-y-2 rounded-xl bg-white/10 p-3 text-forest-50">
-      <div className="mono flex items-center gap-2 text-forest-100"><span className="h-2 w-2 rounded-full bg-emerald-400" />{shortAddr(w.account)}</div>
-      {w.myOrg ? (
-        <div className="text-sm">
-          <div className="flex items-center gap-1.5 font-semibold"><BadgeCheck className="h-4 w-4 text-emerald-300" />{w.myOrg.name}</div>
-          <div className="text-xs text-forest-200">{ORG_TYPES[w.myOrg.orgType]} · {w.myOrg.active ? "Active" : <span className="text-amber-300">Deactivated</span>}</div>
+      <div className="flex items-center gap-2 text-xs font-semibold text-forest-200 uppercase tracking-wider">
+        <Users className="h-3.5 w-3.5" />Switch account
+      </div>
+      <select
+        className="w-full rounded-lg bg-white/10 px-2.5 py-2 text-sm text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-emerald-400/50"
+        value={w.account ?? ""}
+        onChange={(e) => w.selectAccount(e.target.value)}
+      >
+        {w.accounts.map((addr) => (
+          <option key={addr} value={addr} className="bg-forest-900 text-white">
+            {w.accountLabel(addr)} ({shortAddr(addr)})
+          </option>
+        ))}
+      </select>
+      {w.account && (
+        <div className="space-y-1 pt-1">
+          <div className="mono flex items-center gap-2 text-forest-100">
+            <span className="h-2 w-2 rounded-full bg-emerald-400" />{shortAddr(w.account)}
+          </div>
+          {w.myOrg ? (
+            <div className="text-sm">
+              <div className="flex items-center gap-1.5 font-semibold"><BadgeCheck className="h-4 w-4 text-emerald-300" />{w.myOrg.name}</div>
+              <div className="text-xs text-forest-200">{ORG_TYPES[w.myOrg.orgType]} · {w.myOrg.active ? "Active" : <span className="text-amber-300">Deactivated</span>}</div>
+            </div>
+          ) : <div className="text-xs text-amber-200">{w.isOwner ? "Contract owner (admin)" : "Not a registered organization."}</div>}
+          {w.isOwner && w.myOrg && <div className="text-xs text-sand-300">Also contract owner</div>}
         </div>
-      ) : <div className="text-xs text-amber-200">{w.isOwner ? "Contract owner (admin)" : "Not a registered organization. Read-only access."}</div>}
-      {w.isOwner && w.myOrg && <div className="text-xs text-sand-300">Also contract owner</div>}
-      <div className="border-t border-white/10 pt-2 text-xs text-forest-200">{w.wrongNetwork ? "Unsupported network" : net?.name}</div>
+      )}
     </div>
   );
 }
@@ -58,7 +78,7 @@ export default function Layout() {
         <div className="leading-tight"><div className="font-display text-xl font-bold text-white">Wild Chain</div><div className="text-xs text-forest-200">Chain of custody</div></div>
       </div>
       {nav}
-      <div className="mt-auto space-y-3"><WalletCard /><div className="text-[11px] leading-snug text-forest-300/70">Evidence store: {evidenceStore.name}</div></div>
+      <div className="mt-auto space-y-3"><AccountSwitcher /><div className="text-[11px] leading-snug text-forest-300/70">Evidence store: {evidenceStore.name} · Ganache (local)</div></div>
     </div>
   );
   return (
@@ -77,15 +97,7 @@ export default function Layout() {
         </div>
       )}
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-8 sm:py-10">
-        {w.wrongNetwork && (
-          <div className="mb-5"><Notice tone="warn">
-            <div className="flex flex-wrap items-center gap-3">
-              <span>Your wallet is on an unsupported network (chain {w.chainId}). Switch to a network with a deployment:</span>
-              <button className="btn-secondary btn-sm" onClick={() => w.switchNetwork(1337)}>Ganache (1337)</button>
-              <button className="btn-secondary btn-sm" onClick={() => w.switchNetwork(11155111)}>Sepolia</button>
-            </div></Notice></div>
-        )}
-        {!w.deployed && <div className="mb-5"><Notice tone="error">No contract deployment found for chain {w.activeChainId}. Run <code className="mono">npm run deploy:ganache</code> (or deploy:sepolia) from the repo root.</Notice></div>}
+        {!w.deployed && <div className="mb-5"><Notice tone="error">No contract deployment found. Run <code className="mono">start.bat</code> to deploy the contracts.</Notice></div>}
         <Outlet />
       </main>
       <ToastHost />

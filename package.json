@@ -12,12 +12,14 @@
     "deploy:ganache": "hardhat run scripts/deploy.ts --network ganache && hardhat run scripts/export-abi.ts",
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia && hardhat run scripts/export-abi.ts",
     "seed": "hardhat run scripts/seed-demo.ts --network ganache",
-    "dev": "npm --prefix frontend run dev"
+    "dev": "npm --prefix frontend run dev",
+    "start": "start.bat"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@types/node": "^26.6.2",
     "dotenv": "^18.0.1",
+    "ganache": "^7.9.2",
     "hardhat": "^2.29.1",
     "ts-node": "^10.9.2",
     "typescript": "~5.6"

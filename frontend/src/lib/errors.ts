@@ -52,7 +52,6 @@ function findData(err: any, depth = 0): string | null {
 
 /** Turns any wallet/contract error into a human-readable sentence. */
 export function decodeError(err: any): string {
-  if (err?.code === "ACTION_REJECTED" || err?.code === 4001 || /user rejected/i.test(err?.message ?? "")) return "Transaction rejected in wallet.";
   const data = findData(err);
   if (data && iface) {
     try {

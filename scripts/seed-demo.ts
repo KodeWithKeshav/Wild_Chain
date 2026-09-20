@@ -66,50 +66,10 @@ async function main() {
 
   const rec = async (name: string) => ({ hash: sha(files[name]), cid: await pin(name, files[name]) });
 
-  // ---- #1 Spotted Deer: full journey to RELEASED
-  let f = await rec("deer-rescue-photo.txt");
+  // ---- #1 Spotted Deer: RESCUED (ready for full user walkthrough)
+  const f = await rec("deer-rescue-photo.txt");
   await (await chain.connect(rescue).registerAnimal("Spotted Deer", sha("microchip-DEER-0001"), f.hash, f.cid)).wait();
-  f = await rec("deer-rescue-photo.txt");
-  await (await chain.connect(rescue).recordMilestone(1, M.ASSESSMENT, "Injured left hind leg, dehydrated, alert", f.hash, f.cid)).wait();
-  await (await chain.connect(rescue).advanceStatus(1, S.TRIAGED)).wait();
-  f = await rec("handover.txt");
-  await (await chain.connect(rescue).requestTransfer(1, vet.address, f.hash, f.cid)).wait();
-  await (await chain.connect(vet).acceptTransfer(1)).wait();
-  await (await chain.connect(vet).advanceStatus(1, S.UNDER_TREATMENT)).wait();
-  f = await rec("deer-medical-report.txt");
-  await (await chain.connect(vet).recordMilestone(1, M.TREATMENT, "Fractured tibia splinted, antibiotics started", f.hash, f.cid)).wait();
-  await (await chain.connect(vet).advanceStatus(1, S.RECOVERING)).wait();
-  await (await chain.connect(vet).recordMilestone(1, M.RECOVERY, "Bearing weight, eating normally", ZERO, "")).wait();
-  await (await chain.connect(vet).requestTransfer(1, rehab.address, ZERO, "")).wait();
-  await (await chain.connect(rehab).acceptTransfer(1)).wait();
-  await (await chain.connect(rehab).advanceStatus(1, S.REHABILITATION)).wait();
-  await (await chain.connect(rehab).recordMilestone(1, M.REHABILITATION, "Ran 200m in paddock, wild-diet foraging restored", ZERO, "")).wait();
-  await (await chain.connect(forest).verifyMilestone(1, 1)).wait();
-  await (await chain.connect(conservation).verifyMilestone(1, 3)).wait();
-  await (await chain.connect(rehab).advanceStatus(1, S.RELEASE_READY)).wait();
-  f = await rec("release-permit.txt");
-  await (await chain.connect(forest).authorizeRelease(1, f.hash, f.cid)).wait();
-  f = await rec("release-photo.txt");
-  await (await chain.connect(rehab).releaseAnimal(1, "Released at forest edge, sector 4 (12.94N, 77.10E)", f.hash, f.cid)).wait();
-  console.log("#1 Spotted Deer -> RELEASED");
-
-  // ---- #2 Golden Eagle: RECOVERING at the vet
-  f = await rec("eagle-rescue-photo.txt");
-  await (await chain.connect(forest).registerAnimal("Golden Eagle", ZERO, f.hash, f.cid)).wait();
-  await (await chain.connect(forest).requestTransfer(2, vet.address, ZERO, "")).wait();
-  await (await chain.connect(vet).acceptTransfer(2)).wait();
-  await (await chain.connect(vet).recordMilestone(2, M.ASSESSMENT, "Wing trauma, underweight", ZERO, "")).wait();
-  await (await chain.connect(vet).advanceStatus(2, S.TRIAGED)).wait();
-  await (await chain.connect(vet).advanceStatus(2, S.UNDER_TREATMENT)).wait();
-  await (await chain.connect(vet).recordMilestone(2, M.TREATMENT, "Wing pinned, pain relief", ZERO, "")).wait();
-  await (await chain.connect(vet).advanceStatus(2, S.RECOVERING)).wait();
-  console.log("#2 Golden Eagle -> RECOVERING");
-
-  // ---- #3 Bengal Tiger: RESCUED with a pending transfer
-  f = await rec("tiger-rescue-photo.txt");
-  await (await chain.connect(rescue).registerAnimal("Bengal Tiger", sha("collar-TIGER-77"), f.hash, f.cid)).wait();
-  await (await chain.connect(rescue).requestTransfer(3, vet.address, ZERO, "")).wait();
-  console.log("#3 Bengal Tiger -> RESCUED, transfer to vet pending");
+  console.log("#1 Spotted Deer -> RESCUED (in custody of Coastal Rescue Team, ready for your walkthrough!)");
 
   console.log("\nDemo accounts (Ganache deterministic mnemonic):");
   console.log(`  Admin/owner          ${owner.address}`);

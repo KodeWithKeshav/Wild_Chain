@@ -147,11 +147,10 @@ export function AnimalPicker({ animals, value, onChange, label = "Animal" }: { a
 }
 
 export function ToastHost() {
-  const { toasts, dismissToast, explorerTx } = useWeb3();
+  const { toasts, dismissToast } = useWeb3();
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-50 flex w-[min(92vw,22rem)] flex-col gap-2">
       {toasts.map((t) => {
-        const link = t.hash ? explorerTx(t.hash) : null;
         return (
           <div key={t.id} className="pointer-events-auto rise flex items-start gap-3 rounded-xl border border-forest-900/10 bg-white p-3.5 shadow-xl">
             {t.state === "pending" && <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-forest-600" />}
@@ -160,11 +159,11 @@ export function ToastHost() {
             <div className="min-w-0 flex-1 text-sm">
               <div className="font-semibold text-forest-900">{t.label}</div>
               <div className="text-forest-800/70">
-                {t.state === "pending" && (t.hash ? "Waiting for confirmation…" : "Confirm in your wallet…")}
+                {t.state === "pending" && "Sending transaction…"}
                 {t.state === "confirmed" && "Confirmed on-chain"}
                 {t.state === "failed" && t.message}
               </div>
-              {t.hash && <div className="mono mt-1 text-forest-700/60">{link ? <a className="inline-flex items-center gap-1 text-forest-600 hover:underline" href={link} target="_blank" rel="noreferrer">{shortHash(t.hash)}<ExternalLink className="h-3 w-3" /></a> : shortHash(t.hash)}</div>}
+              {t.hash && <div className="mono mt-1 text-forest-700/60">{shortHash(t.hash)}</div>}
             </div>
             <button onClick={() => dismissToast(t.id)} className="text-forest-900/40 hover:text-forest-900"><X className="h-4 w-4" /></button>
           </div>
